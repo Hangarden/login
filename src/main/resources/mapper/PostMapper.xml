@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hello.login.web.mapper.PostMapper">
+
+<!-- tb_post 테이블 전체 컬럼 -->
+    <sql id="postColumns">
+        id
+        , title
+        , content
+        , writer
+        , view_cnt
+        , delete_yn
+        , created_date
+        , modified_date
+        , member_key
+    </sql>
+
+
+
+        <!-- 게시글 저장 -->
+    <insert id="save" parameterType="PostRequest" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_post (
+            <include refid="postColumns" />
+    ) VALUES (
+            #{id}
+            , #{title}
+            , #{content}
+            , #{writer}
+            , 0
+            , 0
+            , NOW()
+            , NULL
+            , #{memberKey}
+    )
+    </insert>
+
+    <!-- 조회수 올리기 -->
+    <update id="updateCnt">
+        update
+            tb_post
+        set
+            view_cnt = view_cnt + 1
+        where
+            id = #{id}
+    </update>
+
+
+            <!-- 게시글 상세정보 조회 -->
+    <select id="findById" parameterType="long" resultType="PostResponse">
+        SELECT
+            <include refid="postColumns" />
+        FROM
+            tb_post
+        WHERE
+            id = #{value}
+    </select>
+
+
+            <!-- 게시글 수정 -->
+    <update id="update" parameterType="PostRequest">
+        UPDATE
+            tb_post
+        SET
+            modified_date = NOW()
+            , title = #{title}
+            , content = #{content}
+            , writer = #{writer}
+        WHERE
+            id = #{id}
+    </update>
+
+
+            <!-- 게시글 삭제 -->
+    <delete id="deleteById" parameterType="long">
+        UPDATE
+            tb_post
+        SET
+            delete_yn = 1
+        WHERE
+            id = #{id}
+    </delete>
+
+    <!-- 게시글 리스트 조회 -->
+    <select id="findAll" parameterType="SearchDto" resultType="PostResponse">
+        SELECT
+            <include refid="postColumns" />
+        FROM
+            tb_post
+        WHERE
+            delete_yn = 0
+            <include refid="search" />
+        ORDER BY
+            id DESC
+        LIMIT #{pagination.limitStart}, #{recordSize}
+    </select>
+    <!-- 정렬된 데이터를 10개 만 가져오겠습니다 -->
+
+    <!-- 게시글 수 카운팅 -->
+    <select id="count" parameterType="SearchDto" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            tb_post
+        WHERE
+            delete_yn = 0
+          <include refid="search" />
+    </select>
+
+    <!-- 게시글 검색 -->
+    <sql id="search">
+        <!-- 검색 키워드가 있을 때 --> <!-- ''를 사용함으로"" 사용 -->
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <!-- 검색 유형이 있을 때 -->
+                <when test="searchType != null and searchType != ''">
+                    <choose>
+                        <!-- 조건절에서 Like 검색시 사용 부분적으로 일치하는 컬럼을 조회할 때 사용된다. -->
+                        <when test="'title'.equals( searchType )">
+                            AND title LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="'content'.equals( searchType )">
+                            AND content LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="'writer'.equals( searchType )">
+                            AND writer LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                    </choose>
+                </when>
+                <!-- 전체 검색일 때 때 -->
+                <otherwise>
+                    AND (
+                    title LIKE CONCAT('%', #{keyword}, '%')
+                    OR content LIKE CONCAT('%', #{keyword}, '%')
+                    OR writer LIKE CONCAT('%', #{keyword}, '%')
+                    )
+                </otherwise>
+            </choose>
+        </if>
+    </sql>
+
+
+
+</mapper>

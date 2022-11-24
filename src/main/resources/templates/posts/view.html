@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/basic">
+<th:block layout:fragment="title">
+  <title>this is view page</title>
+</th:block>
+
+<th:block layout:fragment="content">
+
+  <div class="form-group" style="display: none">
+    <label class="col-sm-2 control-label" style="display: none">멤버아이디</label>
+    <div class="col-sm-10">
+      <p class="form-control" id="memberKey" th:text="${post.memberKey}" style="display: none"></p>
+    </div>
+  </div>
+
+  <div class="card-content">
+    <div class="form-group">
+      <label class="col-sm-2 control-label">제목</label>
+      <div class="col-sm-10">
+        <p class="form-control" id="title" th:text="${post.title}"></p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">이름</label>
+      <div class="col-sm-10">
+        <p class="form-control" id="writer" th:text="${post.writer}"></p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-sm-2 control-label">내용</label>
+      <div class="col-sm-10">
+        <p class="form-control" id="board-content" th:text="${post.content}"></p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-sm-2 control-label">등록일</label>
+      <div class="col-sm-10">
+        <p class="form-control" th:text="*{#temporals.format( post.createdDate, 'yyyy-MM-dd HH:mm:ss' )}"></p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-sm-2 control-label">조회 수</label>
+      <div class="col-sm-10">
+        <p class="form-control" id="viewCnt" th:text="${post.viewCnt}"></p>
+      </div>
+    </div>
+
+    <div class="btn_wrap text-center">
+      <a href="javascript: void(0);" onclick="goListPage();" class="btn btn-default waves-effect waves-light">뒤로가기</a>
+      <a th:if="${post.memberKey == memberCheck}" id = "modified_post" href="javascript: void(0);" onclick="goWritePage();" class="btn btn-primary waves-effect waves-light" disabled>수정하기</a>
+      <button th:if="${post.memberKey == memberCheck}" type="button" class="btn btn-danger waves-effect waves-light" onclick="deletePost();">삭제하기</button>
+    </div>
+  </div>
+  </div>
+</th:block>
+
+<th:block layout:fragment="add-content">
+  <div class="box-content">
+    <div class="card-content">
+      <div class="clearfix">
+        <h4 class="box-title pull-left">Comment</h4>
+        <!-- /.box-title -->
+      </div>
+
+      <form class="form-horizontal form-view">
+        <div class="input-group margin-bottom-20">
+          <input type="text" id="content" class="form-control" />
+          <div class="input-group-btn">
+            <button type="button" class="btn waves-effect waves-light" th:onclick="insertComment([[ ${post.id} ]])">
+              <i class="fa fa-commenting" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        <ul class="notice-list"></ul>
+      </form>
+    </div>
+    <!-- /.card-content -->
+  </div>
+  <!-- /.box-content -->
+</th:block>
+
+<th:block layout:fragment="script">
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(function() {
+      printCommentList();
+    });
+
+
+    function updateComment(idx, writer, content) {
+
+
+      let htmls = "";
+
+      htmls += '<div class="media text-muted pt-3" id="idx' + idx + '">';
+
+      htmls += '<svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder:32x32">';
+
+      htmls += '<title>Placeholder</title>';
+
+      htmls += '<rect width="100%" height="100%" fill="#007bff"></rect>';
+
+      htmls += '<text x="50%" fill="#007bff" dy=".3em">32x32</text>';
+
+      htmls += '</svg>';
+
+      htmls += '<p class="media-body pb-3 mb-0 small lh-125 border-bottom horder-gray">';
+
+      htmls += '<span class="d-block">';
+
+      htmls += '<strong class="text-gray-dark">' + writer + '</strong>';
+
+      htmls += '<span style="padding-left: 7px; font-size: 9pt">';
+
+      htmls += '<a href="javascript:void(0)" onclick="fn_updateReply(' + idx + ', \'' + writer + '\')" style="padding-right:5px">저장</a>';
+
+      htmls += '<a href="javascript:void(0)" onClick="showReplyList()">취소<a>';
+
+      htmls += '</span>';
+
+      htmls += '</span>';
+
+      htmls += '<textarea name="editContent" id="editContent" class="form-control" rows="3">';
+
+      htmls += content;
+
+      htmls += '</textarea>';
+
+
+
+      htmls += '</p>';
+
+      htmls += '</div>';
+
+
+
+      $('#idx' + idx).replaceWith(htmls);
+
+      $('#idx' + idx + ' #editContent').focus();
+
+      let query = window.location.search;
+      let param = new URLSearchParams(query);
+      let id = param.get('id');
+      let uri = '/comments/' + id;
+
+      const headers = {"Content-Type": "application/json", "X-HTTP-Method-Override": "POST"};
+      const params = {"idx": idx, "writer": writer.value, "content": content.value};
+      // var params = {"boardIdx": boardIdx, "content": content.value, "writer": "관리자"};
+
+    $.ajax({
+      url: uri,
+      type: "PATCH",
+      headers: headers,
+      dataType: "json",
+      data: JSON.stringify(params),
+      success: function(response) {
+        if (response.result == false) {
+          alert("댓글 수정에 실패하였습니다.");
+          return false;
+        }
+
+        printCommentList();
+        $("#commentModal").modal("hide");
+      },
+      error: function(xhr, status, error) {
+        alert("에러가 발생하였습니다.");
+        return false;
+      }
+    });
+    }
+
+
+
+
+    function insertComment(boardIdx) {
+
+      const content = document.getElementById("content");
+      if (content.value == null) {
+        content.setAttribute("placeholder", "댓글을 입력해 주세요.");
+        content.focus();
+        return false;
+      }
+
+
+      let uri = '/comments';
+      const headers = {"Content-Type": "application/json", "X-HTTP-Method-Override": "POST"};
+      const params = {"boardIdx": boardIdx, "content": content.value };
+      // var params = {"boardIdx": boardIdx, "content": content.value, "writer": "관리자"};
+
+      $.ajax({
+        url: uri,
+        type: "POST",
+        headers: headers,
+        dataType: "json",
+        data: JSON.stringify(params),
+        success: function(response) {
+          if (response.result == false) {
+            alert("댓글 등록에 실패하였습니다.");
+            return false;
+          }
+
+          printCommentList();
+          content.value = "";
+        },
+        error: function(xhr, status, error) {
+          alert("에러가 발생하였습니다.");
+          return false;
+        }
+      });
+    }
+    /*[- end of function -]*/
+
+    function printCommentList() {
+
+      // const id = [[ ${post.id} ]];
+      // const id2 = 2;
+      let query = window.location.search;
+      let param = new URLSearchParams(query);
+      let id = param.get('id');
+      let uri = '/comments/' + id;
+
+
+      $.get(uri, function(response) {
+        if (response != null) {
+          let commentsHtml = "";
+
+          $(response.commentList).each(function(idx, comment) {
+            commentsHtml += `
+								<li>
+									<span class="name">${comment.writer}</span>
+									<span class="desc" id = "comment-content">${comment.content}</span>
+									<span class="time" id = "comment-content">${moment(comment.insertTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+									<button type="button" onclick="updateComment(${comment.idx}, '${comment.writer}', '${comment.content}' )" class="btn btn-xs btn-circle"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></button>
+								</li>
+							`;
+          });
+
+          $(".notice-list").html(commentsHtml);
+        }
+      }, "json");
+    }
+    /*[- end of function -]*/
+
+    // 게시글 삭제
+    function deletePost() {
+      const id = [[ ${post.id} ]];
+      if ( !confirm(id + "번 게시글을 삭제할까요?") ) {
+        return false;
+      }
+
+      let inputHtml = '';
+
+      new URLSearchParams(location.search).forEach((value, key) => {
+        inputHtml += `<input type="hidden" name="${key}" value="${value}" />`;
+      })
+
+      const formHtml = `
+                    <form id="deleteForm" action="/post/delete.do" method="post">
+                        ${inputHtml}
+                    </form>
+                `;
+
+      const doc = new DOMParser().parseFromString(formHtml, 'text/html');
+      const form = doc.body.firstChild;
+      document.body.append(form);
+      document.getElementById('deleteForm').submit();
+    }
+
+
+    // 게시글 리스트 페이지로 이동
+    function goListPage() {
+      const queryString = new URLSearchParams(location.search);
+      queryString.delete('id');
+      location.href = '/post/list.do' + '?' + queryString.toString();
+    }
+
+
+    // 게시글 수정 페이지로 이동
+    function goWritePage() {
+      location.href = '/posts/write.do' + location.search;
+    }
+
+    // const modifyButton = document.querySelector('#modified_post');
+    // let valid_memberkey = ${post.memberkey}
+    //
+    // function activeEvent() {
+    //   switch((valid_password && valid_email && valid_address1 && valid_address2 && valid_name && valid_id && valid_zipcode && valid_tel && valid_tel_input && valid_email_input)){
+    //     case true : loginButton.disabled = false; break;
+    //     case false : loginButton.disabled = true; break;
+    //   }
+    //
+    // }
+
+
+
+
+    /*]]>*/
+  </script>
+</th:block>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/basic">-->
+<!--<th:block layout:fragment="title">-->
+<!--  <title>상세 페이지</title>-->
+<!--</th:block>-->
+
+<!--<th:block layout:fragment="content">-->
+<!--  <div class="page_tits">-->
+<!--    <h3>게시판 관리</h3>-->
+<!--    <p class="path"><strong>현재 위치 :</strong> <span>게시판 관리</span> <span>리스트형</span> <span>상세정보</span></p>-->
+<!--  </div>-->
+
+<!--  <div class="content">-->
+<!--    <section>-->
+<!--      <table class="tb tb_row">-->
+<!--        <colgroup>-->
+<!--          <col style="width:10%;" /><col style="width:23%;" /><col style="width:10%;" /><col style="width:23%;" />-->
+<!--        </colgroup>-->
+<!--        <tbody>-->
+<!--        <tr>-->
+<!--          <th scope="row">글 유형</th>-->
+<!--&lt;!&ndash;          <td th:text="${post.noticeYn == false ? '일반' : '공지'}"></td>&ndash;&gt;-->
+
+<!--          <th scope="row">등록일</th>-->
+<!--          <td th:text="${#temporals.format( post.createdDate, 'yyyy-MM-dd HH:mm' )}"></td>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--          <th scope="row">제목</th>-->
+<!--          <td>[[ ${post.title} ]]</td>-->
+
+<!--          <th scope="row">조회</th>-->
+<!--          <td colspan="3">[[ ${post.viewCnt} ]]</td>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--          <th scope="row">이름</th>-->
+<!--          <td colspan="3">[[ ${post.writer} ]]</td>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--          <th scope="row">내용</th>-->
+<!--          <td colspan="3">[[ ${post.content} ]]</td>-->
+<!--        </tr>-->
+<!--        </tbody>-->
+<!--      </table>-->
+<!--      <p class="btn_set">-->
+<!--        <a th:href="@{/posts/write.do( id=${post.id} )}" class="btns btn_bdr4 btn_mid">수정</a>-->
+<!--        <button type="button" onclick="deletePost();" class="btns btn_bdr1 btn_mid">삭제</button>-->
+<!--        <a th:href="@{/post/list.do}" class="btns btn_bdr3 btn_mid">뒤로</a>-->
+<!--      </p>-->
+<!--    </section>-->
+<!--  </div> &lt;!&ndash;/* .content */&ndash;&gt;-->
+<!--</th:block>-->
+
+<!--<th:block layout:fragment="script">-->
+<!--  <script th:inline="javascript">-->
+<!--    /*<![CDATA[*/-->
+
+<!--    // 게시글 삭제-->
+<!--    function deletePost() {-->
+<!--      const id = [[ ${post.id} ]];-->
+
+<!--      if ( !confirm( '게시글을 삭제할까요?') ) {-->
+<!--        return false;-->
+<!--      }-->
+
+<!--      const formHtml = `-->
+<!--          <form id="deleteForm" action="/post/delete.do" method="post">-->
+<!--              <input type="hidden" id="id" name="id" value="${id}" />-->
+<!--          </form>-->
+<!--      `;-->
+<!--      const doc = new DOMParser().parseFromString(formHtml, 'text/html');-->
+<!--      const form = doc.body.firstChild;-->
+<!--      document.body.append(form);-->
+<!--      document.getElementById('deleteForm').submit();-->
+<!--    }-->
+
+<!--    /*]]>*/-->
+<!--  </script>-->
+<!--</th:block>-->
+
+<!--</html>-->

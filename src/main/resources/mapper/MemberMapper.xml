@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hello.login.web.mapper.MemberMapper">
+
+    <!-- -->
+    <!-- 아이디 중복 체크 -->
+    <select id="idCheck" parameterType="String" resultType="int"><!-- resultltType : select 된 데이터를 반환할 (그릇)을 정해주는것 위의 코드같은경우엔 StockNewsVO 객체에 담긴다 -->
+            /*회원 아이디 중복 체크*/
+            SELECT
+                COUNT(login_id)
+            FROM
+                member
+            WHERE
+                login_id= #{login_id}
+        </select>
+
+    <select id="passwordCheck" parameterType="String" resultType="int"><!-- resultltType : select 된 데이터를 반환할 (그릇)을 정해주는것 위의 코드같은경우엔 StockNewsVO 객체에 담긴다 -->
+        /*회원 아이디 중복 체크*/
+        SELECT
+            COUNT(password)
+        FROM
+            member
+        WHERE
+            password= #{password}
+    </select>
+<!--        SELECT COUNT(login_id) FROM member WHERE login_id= #{login_id}-->
+<!--    </select>-->
+
+<!--    <select id="numberCheck" parameterType="String" resultType="int"> &lt;!&ndash; string 갑의 파라미터가 들어올 것이다. &ndash;&gt;-->
+<!--        SELECT COUNT(phone_number) FROM member WHERE phone_number= #{phone_number}-->
+<!--    </select>-->
+
+    <insert id="addMember" parameterType="Member">      <!-- id가 (interface) MemberMapper에 매핑시켜줌  -->
+        /* 회원가입 */
+        INSERT INTO member
+        (	  login_id
+        , password
+        , name
+        , email
+        , zip_code
+        , address1
+        , address2
+        , phone_number
+        )VALUES (
+                    #{login_id}
+                , #{password}
+                , #{name}
+                , #{email1} '@' #{email2}
+                , #{zipcode}
+                , #{address_one}
+                , #{address_two}
+                , #{tel1} '-' #{tel2} '-' #{tel3}
+                );
+    </insert>
+
+<!--    <select id="login" parameterType="String" resultType="Member">-->
+<!--        SELECT-->
+<!--            *-->
+<!--        FROM-->
+<!--            member-->
+<!--        WHERE-->
+<!--            login_id = #{login_id}-->
+<!--          AND-->
+<!--            password = #{password};-->
+<!--    </select>-->
+
+    <select id="selectMember" parameterType="String" resultType="Member">
+        /*회원별 회원정보 조회*/
+        SELECT
+              m.member_key
+             ,m.login_id
+             ,m.password
+             ,m.name
+             ,m.email
+             ,m.zip_code
+             ,m.address1
+             ,m.address2
+             ,m.phone_number
+        FROM
+            member AS m
+        WHERE
+            m.login_id = #{login_id};
+    </select>
+
+
+
+
+</mapper>
