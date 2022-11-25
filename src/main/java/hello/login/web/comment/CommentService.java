@@ -50,4 +50,15 @@ public class CommentService {
         return commentList;
     }
 
+    public List<CommentDTO> getReCommentList(CommentDTO params) {
+        List<CommentDTO> commentList1 = Collections.emptyList();
+
+        int commentTotalCount = commentMapper.selectReCommentTotalCount(params);
+        if (commentTotalCount > 0) {
+            commentList1 = commentMapper.selectReCommentList(params);
+        }
+
+        return commentList1;
+    }
+
 }

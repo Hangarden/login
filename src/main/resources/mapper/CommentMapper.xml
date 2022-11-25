@@ -13,6 +13,8 @@
 		, update_time
 		, delete_time
         , member_key
+        , c_depth
+        , comment_parent_id
     </sql>
 
     <insert id="insertComment" parameterType="CommentDTO">
@@ -28,6 +30,8 @@
         , NULL
         , NULL
         , #{memberKey}
+        , #{cDepth}
+        , #{commentParentId}
         )
     </insert>
 
@@ -70,6 +74,28 @@
         delete_yn = 'N'
         AND
         board_idx = #{boardIdx}
+        AND
+        c_depth = 0
+        AND
+        comment_parent_id = 0
+        ORDER BY
+        idx DESC,
+        insert_time DESC
+    </select>
+
+    <select id="selectReCommentList" parameterType="CommentDTO" resultType="CommentDTO">
+        SELECT
+        <include refid="commentColumns" />
+        FROM
+        tb_comment
+        WHERE
+        delete_yn = 'N'
+        AND
+        board_idx = #{boardIdx}
+        AND
+        c_depth = 1
+        AND
+        comment_parent_id = #{commentParentId}
         ORDER BY
         idx DESC,
         insert_time DESC
@@ -84,6 +110,25 @@
             delete_yn = 'N'
           AND
             board_idx = #{boardIdx}
+          AND
+            c_depth = 0
+          AND
+            comment_parent_id = 0
+    </select>
+
+    <select id="selectReCommentTotalCount" parameterType="CommentDTO" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            tb_comment
+        WHERE
+            delete_yn = 'N'
+          AND
+            board_idx = #{boardIdx}
+          AND
+            c_depth = 1
+          AND
+            comment_parent_id = #{commentParentId}
     </select>
 
 </mapper>

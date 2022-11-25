@@ -19,6 +19,12 @@ public interface CommentMapper {
 
     List<CommentDTO> selectCommentList(CommentDTO params);
 
+    List<CommentDTO> selectReCommentList(CommentDTO params);
+
     int selectCommentTotalCount(CommentDTO params);
+
+    int selectReCommentTotalCount(CommentDTO params);
+
+
 
 }
