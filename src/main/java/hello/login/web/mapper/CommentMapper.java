@@ -11,6 +11,8 @@ public interface CommentMapper {
 
     int insertComment(CommentDTO params);
 
+    int insertReComment(CommentDTO params);
+
     CommentDTO selectCommentDetail(Long idx);
 
     int updateComment(CommentDTO params);

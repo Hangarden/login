@@ -27,6 +27,18 @@ public class CommentService {
         return (queryResult == 1) ? true : false;
     }
 
+    public boolean registerReComment(CommentDTO params) {
+        int queryResult = 0;
+
+        if (params.getIdx() == null) {
+            queryResult = commentMapper.insertReComment(params);
+        } else {
+//            queryResult = commentMapper.updateReComment(params);
+        }
+
+        return (queryResult == 1) ? true : false;
+    }
+
     public boolean deleteComment(Long idx) {
         int queryResult = 0;
 

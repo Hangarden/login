@@ -35,6 +35,24 @@
         )
     </insert>
 
+    <insert id="insertReComment" parameterType="CommentDTO">
+        INSERT INTO tb_comment (
+        <include refid="commentColumns" />
+        ) VALUES (
+        #{idx}
+        , #{boardIdx}
+        , #{content}
+        , #{writer}
+        , IFNULL(#{deleteYn}, 'N')
+        , NOW()
+        , NULL
+        , NULL
+        , #{memberKey}
+        , #{cDepth}
+        , #{commentParentId}
+        )
+    </insert>
+
     <select id="selectCommentDetail" parameterType="long" resultType="CommentDTO">
         SELECT
         <include refid="commentColumns" />
@@ -97,8 +115,8 @@
         AND
         comment_parent_id = #{commentParentId}
         ORDER BY
-        idx DESC,
-        insert_time DESC
+        idx ASC,
+        insert_time ASC
     </select>
 
     <select id="selectCommentTotalCount" parameterType="CommentDTO" resultType="int">

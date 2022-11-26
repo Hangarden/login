@@ -171,6 +171,7 @@
       let param = new URLSearchParams(query);
       let boardIdx = param.get('id');
       const content = document.getElementById("content");
+
       if (content.value == null) {
         content.setAttribute("placeholder", "댓글을 입력해 주세요.");
         content.focus();
@@ -206,11 +207,15 @@
     }
     /*[- end of function -]*/
 
-    function insertReComment() {
+    function insertReComment(cid) {
+      const commentParentId = cid;
+      alert(commentParentId);
       let query = window.location.search;
       let param = new URLSearchParams(query);
       let boardIdx = param.get('id');
-      const content = document.getElementById("content");
+      const content = document.getElementById("reComment");
+      alert(boardIdx);
+      alert(content.value);
       if (content.value == null) {
         content.setAttribute("placeholder", "댓글을 입력해 주세요.");
         content.focus();
@@ -218,11 +223,11 @@
       }
 
 
-      let uri = '/comments';
+      let uri = '/comments/' + boardIdx + '/'+ commentParentId ;
       const headers = {"Content-Type": "application/json", "X-HTTP-Method-Override": "POST"};
-      const params = {"boardIdx": boardIdx, "content": content.value };
+      const params = {"boardIdx": boardIdx, "content": content.value, "commentParentId" : commentParentId};
       // var params = {"boardIdx": boardIdx, "content": content.value, "writer": "관리자"};
-
+      //
       $.ajax({
         url: uri,
         type: "POST",
@@ -339,12 +344,12 @@
           if (response != null) {
             $(response.commentList1).each(function (idx, comment1) { //선택자의 개체, IDX는 말그대로 인덱스
               commentsHtml += "<li>";
-              commentsHtml += "<hr>";
+              // commentsHtml += "<hr>";
               commentsHtml += "<input type='hidden' id='commentId_" + comment1.idx + "' value='" + comment1.idx + "'>"
               commentsHtml += "<span><b id='commentWriter_" + comment1.idx + "'>" + comment1.writer + "</b></span> ";
               // commentsHtml += "<span style='float:right;' align='right' id='commentDate_" + comment1.idx + "'> " + " </span>";
               commentsHtml += "<span class='desc' style='display: flex;' id='commentText_" + comment1.idx + "' >" + comment1.content + "</span>";
-              commentsHtml += "<hr>";
+              // commentsHtml += "<hr>";
               commentsHtml += "</li>";
             });
             _this.siblings(".reCommentDiv").html(commentsHtml);
@@ -353,8 +358,9 @@
             commentsHtml += "<h6><strong>등록된 댓글이 없습니다.</strong></h6>";
             commentsHtml += "</div>";
           }
-          commentsHtml += "<input style='width: 90%' id='reComment_" + cid + "' class='reComment' name='reComment' placeholder='댓글을 입력해 주세요'>";
-          commentsHtml += "<button type='button' onclick='insertReComment()'  class='btn btn-primary mx-2 reCommentSubmit'>등록</button>";
+          commentsHtml += "<input style='width: 90%' id='reComment' class='reComment' name='reComment' placeholder='댓글을 입력해 주세요'>";
+          // commentsHtml += "<input style='width: 90%' id='reComment_" + cid + "' class='reComment' name='reComment' placeholder='댓글을 입력해 주세요'>";
+          commentsHtml += '<button onclick="insertReComment('+cid+')" class="btn btn-primary mx-2 reCommentSubmit">등록</button>';
 
           _this.siblings(".reCommentDiv").html(commentsHtml);
         }, "json");
