@@ -8,9 +8,9 @@ import lombok.Setter;
 @Setter
 public class CommentDTO extends CommonDTO{
 
-    private Long idx;
+    private Integer idx;
 
-    private Long boardIdx;
+    private Integer boardIdx;
 
     private String content;
 

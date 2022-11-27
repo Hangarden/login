@@ -136,6 +136,7 @@
 
 <th:block layout:fragment="script">
   <script th:inline="javascript">
+
     /*<![CDATA[*/
     $(document).ready(function(){
 
@@ -144,6 +145,7 @@
         borderColor: color
 
       });
+
 
     });
     $(function() {
@@ -180,14 +182,12 @@
 
 
       let uri = '/comments';
-      const headers = {"Content-Type": "application/json", "X-HTTP-Method-Override": "POST"};
       const params = {"boardIdx": boardIdx, "content": content.value };
       // var params = {"boardIdx": boardIdx, "content": content.value, "writer": "관리자"};
-
       $.ajax({
         url: uri,
         type: "POST",
-        headers: headers,
+        contentType : "application/json; charset=utf-8",
         dataType: "json",
         data: JSON.stringify(params),
         success: function(response) {
@@ -195,7 +195,6 @@
             alert("댓글 등록에 실패하였습니다.");
             return false;
           }
-
           printCommentList();
           content.value = "";
         },
@@ -209,39 +208,41 @@
 
     function insertReComment(cid) {
       const commentParentId = cid;
-      alert(commentParentId);
-      let query = window.location.search;
-      let param = new URLSearchParams(query);
-      let boardIdx = param.get('id');
-      const content = document.getElementById("reComment");
-      alert(boardIdx);
-      alert(content.value);
-      if (content.value == null) {
-        content.setAttribute("placeholder", "댓글을 입력해 주세요.");
-        content.focus();
+      let query2 = window.location.search;
+      let param2 = new URLSearchParams(query2);
+      let boardIdx2 = param2.get('id');
+      const content2 = document.getElementById("reComment");
+
+      if (content2.value == null) {
+        content2.setAttribute("placeholder", "댓글을 입력해 주세요.");
+        content2.focus();
         return false;
       }
 
-
-      let uri = '/comments/' + boardIdx + '/'+ commentParentId ;
-      const headers = {"Content-Type": "application/json", "X-HTTP-Method-Override": "POST"};
-      const params = {"boardIdx": boardIdx, "content": content.value, "commentParentId" : commentParentId};
+      let uri = '/reComments'
+      // const headers = {"X-HTTP-Method-Override": "POST"};
+      const params = {"boardIdx": boardIdx2, "content": content2.value, "commentParentId" : commentParentId };
+      // console.log(params.commentParentId, params.content, params.boardIdx);
       // var params = {"boardIdx": boardIdx, "content": content.value, "writer": "관리자"};
       //
+
+
       $.ajax({
-        url: uri,
-        type: "POST",
-        headers: headers,
-        dataType: "json",
+        url: '/reComments',
+        contentType: 'application/json',
+        type: 'POST',
         data: JSON.stringify(params),
+        contentType: "application/json",
+        dataType: 'json',
         success: function(response) {
+          console.log(response);
           if (response.result == false) {
             alert("댓글 등록에 실패하였습니다.");
             return false;
           }
 
           printCommentList();
-          content.value = "";
+          content2.value = "";
         },
         error: function(xhr, status, error) {
           alert("에러가 발생하였습니다.");
@@ -291,7 +292,9 @@
       // const id = [[ ${post.id} ]];
       // const id2 = 2;
       let query = window.location.search;
+      // alert(query); //?id =1
       let param = new URLSearchParams(query);
+      // alert(param); //id = 1
       let id = param.get('id');
       let uri = '/comments/' + id;
       // ajax를 이용하여 해당 게시물의 ID를 Board_Id로 가지고 있는 댓글들을 모두 가져오는 방식을 이용하였다.
@@ -307,21 +310,22 @@
 									<span class="name">${comment.writer}</span>
 									<span class="desc">${comment.content}</span>
 									`;
-            commentsHtml += "       <span style='cursor: pointer; color: blue' class='reCommentBtn' id='reCommentBtn_" + comment.idx + "'>답글 달기 </span>";
-            commentsHtml += `                        <span style='display:none; cursor: pointer; color: blue' class='reCommentCloseBtn' id='reCommentCloseBtn_"+ data.list[i].id +"'>답글 닫기 </span>
-						            <div class='mx-4 reCommentDiv' id='reCommentDiv_" + data.list[i].id + "'></div>
-									<span class="time">${moment(comment.insertTime).format('YYYY-MM-DD HH:mm:ss')}</span>
-							`;
-
             if (comment.memberKey == memberCheck) {
               commentsHtml += `
 									<button type="button" onclick="openModal(${comment.idx}, ${comment.memberKey}, '${comment.writer}', '${comment.content}' )" class="btn btn-xs btn-circle">
 									<i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
-									</c:ifbutton>
-								</li>
+									</button>
 								`;
             } else {
             }
+            commentsHtml += "       <span style='cursor: pointer; color: blue' class='reCommentBtn' id='reCommentBtn_" + comment.idx + "'>답글 달기 </span>";
+            commentsHtml += `                        <span style='display:none; cursor: pointer; color: blue' class='reCommentCloseBtn' id='reCommentCloseBtn_"+ data.list[i].id +"'>답글 닫기 </span>
+						            <div class='mx-4 reCommentDiv' id='reCommentDiv_" + data.list[i].id + "'></div>
+									<span class="time">${moment(comment.insertTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+								</li>
+`;
+
+
           });
           $(".notice-list").html(commentsHtml);
         }
@@ -343,6 +347,8 @@
           let commentsHtml = "";
           if (response != null) {
             $(response.commentList1).each(function (idx, comment1) { //선택자의 개체, IDX는 말그대로 인덱스
+              const memberCheck = [[${memberCheck}]];
+              alert(memberCheck);
               commentsHtml += "<li>";
               // commentsHtml += "<hr>";
               commentsHtml += "<input type='hidden' id='commentId_" + comment1.idx + "' value='" + comment1.idx + "'>"
@@ -358,143 +364,16 @@
             commentsHtml += "<h6><strong>등록된 댓글이 없습니다.</strong></h6>";
             commentsHtml += "</div>";
           }
+
           commentsHtml += "<input style='width: 90%' id='reComment' class='reComment' name='reComment' placeholder='댓글을 입력해 주세요'>";
           // commentsHtml += "<input style='width: 90%' id='reComment_" + cid + "' class='reComment' name='reComment' placeholder='댓글을 입력해 주세요'>";
-          commentsHtml += '<button onclick="insertReComment('+cid+')" class="btn btn-primary mx-2 reCommentSubmit">등록</button>';
+          commentsHtml += '<button type="button" onclick="insertReComment('+cid+')" class="btn btn-primary mx-2 reCommentSubmit">등록</button>';
 
           _this.siblings(".reCommentDiv").html(commentsHtml);
         }, "json");
       });
     }
 
-
-
-          // $.ajax({
-          //   url: '/comments/' + id + '/' + cid,
-          //   type: "get",
-          //   success: function (commentList1) {
-          //     let commentsHtml = "";
-          //     if (commentList1 != null) {
-          //       $(commentList1).each(function (idx, comment1) {
-          //         commentsHtml += "<div class='mb-2'>";
-          //         commentsHtml += "<input type='hidden' id='commentId_" + comment1.idx + "' value='" + comment1.idx + "'>"
-          //         commentsHtml += "<b id='commentWriter_" + comment1.idx + "'>" + comment1.writer + "</b>";
-          //         commentsHtml += "<span style='float:right;' align='right' id='commentDate_" + comment1.idx + "'> " + " </span>";
-          //         commentsHtml += "<h5 id='commentText_" + comment1.idx + "' style='display: inline'>" + comment1.content + "</h5>";
-          //         commentsHtml += "<hr></div>";
-          //       });
-          //     } else {
-          //       commentsHtml += "<div class='mb-2'>";
-          //       commentsHtml += "<h6><strong>등록된 댓글이 없습니다.</strong></h6>";
-          //       commentsHtml += "</div>";
-          //     }
-          //     commentsHtml += "<input style='width: 90%' id='reComment_" + cid + "' class='reComment' name='reComment' placeholder='댓글을 입력해 주세요'>";
-          //     commentsHtml += "<button type='button' class='btn btn-primary mx-2 reCommentSubmit'>등록</button>";
-          //
-          //     _this.siblings(".reCommentDiv").html(commentsHtml);
-          //   },
-          //   error: function (request, status, error) {
-          //     alert("code: " + request.status + "\n" + "error: " + error);
-          //   }
-          //
-          // });
-    //     });
-    //   }, "json");
-    // }
-          // $.get(uri, function(response2) {
-    //         if (response2 != null) {
-    //           let commentsHtml = "";
-    //           $(response2.commentList1).each(function(idx, comment1) {
-    //             commentsHtml += "<div class='mb-2'>";
-    //             commentsHtml += "<input type='hidden' id='commentId_" + comment1.idx + "' value='" + comment1.idx + "'>"
-    //             commentsHtml += "<b id='commentWriter_" + comment1.idx + "' >" + comment1.writer + "</b>";
-    //             // commentsHtml += "<span style='float:right;' align='right' id='commentDate'> " + displayTime(data.list[i].updateDate) + " </span>";
-    //             commentsHtml += "<h5 id='commentText_" + comment1.idx + "'>" + comment1.comment + "</h5>";
-    //             if (comment1.memberKey == memberCheck) {
-    //               commentsHtml += "<span style='cursor: pointer; color: blue' class='commentMod' data-toggle='modal' data-target='#modifyModal' >수정 </span>";
-    //               commentsHtml += "<span style='cursor: pointer; color: blue' class='commentDel'>삭제</span>";
-    //             }
-    //             commentsHtml += "<hr></div>";
-    //           });
-    //         } else {
-    //           commentsHtml += "<div class='mb-2'>";
-    //           commentsHtml += "<h6><strong>등록된 댓글이 없습니다.</strong></h6>";
-    //           commentsHtml += "</div>";
-    //         }
-    //         commentsHtml += "<input style='width: 90%' id='reComment_" + cid + "' class='reComment' name='reComment' placeholder='댓글을 입력해 주세요'>";
-    //         commentsHtml += "<button type='button' class='btn btn-primary mx-2 reCommentSubmit'>등록</button>";
-    //
-    //         _this.siblings(".reCommentDiv").html(commentsHtml);
-    //
-    //         /*$("#reComment_"+cid+"").emojiInit({
-    //             fontSize: 14
-    //         });*/
-    //       }, "json");
-    //
-    //
-    //     });
-    //  }, "json");
-    // }
-
-
-
-
-    /*[- end of function -]*/
-
-    /*대댓글 버튼 클릭*/
-//     $(document).on("click",".reCommentBtn",function (){
-// //동일한 소스가 반복되는 네비게이션 메뉴, 탭, 아코디언메뉴, 리스트에서 많이 활 사용자가 클릭한 버튼을 말함
-//       const _this = $(this);
-//       //const cid = reComment.find("#commentId").val(); siblings는 선택한 요소의 형재요소를 모두 말함 안에는 클래스나 타입 지정시 사
-//       const cid = $(this).siblings('input').val();
-//
-//       _this.siblings('.reCommentDiv').show();
-//       _this.hide();
-//       _this.siblings('.reCommentCloseBtn').show();
-//
-//       let query = window.location.search;
-//       let param = new URLSearchParams(query);
-//       let id = param.get('id');
-//       // let uri = '/comments/' + id;
-//         $.get(uri, function(response) {
-//           if (response != null) {
-//           let html = "";
-//
-//           if (data.list.length > 0) {
-//             for (let i = 0; i < data.list.length; i++) {
-//               html += "<div class='mb-2'>";
-//               html += "<input type='hidden' id='commentId_"+ data.list[i].id +"' value='" + data.list[i].id + "'>"
-//               html += "<b id='commentWriter_" + data.list[i].id + "' >" + data.list[i].writer + "</b>";
-//               html += "<span style='float:right;' align='right' id='commentDate'> " + displayTime(data.list[i].updateDate) + " </span>";
-//               html += "<h5 id='commentText_"+ data.list[i].id +"'>" + data.list[i].comment + "</h5>";
-//               if (data.list[i].writer === $("#sessionNickname").val()) {
-//                 html += "<span style='cursor: pointer; color: blue' class='commentMod' data-toggle='modal' data-target='#modifyModal' >수정 </span>";
-//                 html += "<span style='cursor: pointer; color: blue' class='commentDel'>삭제</span>";
-//               } else if($("#sessionRole").val() === "ROLE_ADMIN"){
-//                 html += "<span style='cursor: pointer; color: blue' class='commentDel'>삭제</span>";
-//               }
-//               html += "<hr></div>";
-//             }
-//           } else {
-//             html += "<div class='mb-2'>";
-//             html += "<h6><strong>등록된 댓글이 없습니다.</strong></h6>";
-//             html += "</div>";
-//           }
-//           html += "<input style='width: 90%' id='reComment_"+cid+"' class='reComment' name='reComment' placeholder='댓글을 입력해 주세요'>";
-//           html += "<button type='button' class='btn btn-primary mx-2 reCommentSubmit'>등록</button>";
-//
-//           _this.siblings(".reCommentDiv").html(html);
-//
-//           /*$("#reComment_"+cid+"").emojiInit({
-//               fontSize: 14
-//           });*/
-//         },
-//         error: function (request, status, error) {
-//           alert("code: " + request.status + "\n" + "error: " + error);
-//         }
-//       });
-
-    /*[- end of function -]*/
 
     function deleteComment(idx) {
       let uri = '/comments/' + idx;
@@ -590,51 +469,6 @@
 <!--  <title>상세 페이지</title>-->
 <!--</th:block>-->
 
-<!--<th:block layout:fragment="content">-->
-<!--  <div class="page_tits">-->
-<!--    <h3>게시판 관리</h3>-->
-<!--    <p class="path"><strong>현재 위치 :</strong> <span>게시판 관리</span> <span>리스트형</span> <span>상세정보</span></p>-->
-<!--  </div>-->
-
-<!--  <div class="content">-->
-<!--    <section>-->
-<!--      <table class="tb tb_row">-->
-<!--        <colgroup>-->
-<!--          <col style="width:10%;" /><col style="width:23%;" /><col style="width:10%;" /><col style="width:23%;" />-->
-<!--        </colgroup>-->
-<!--        <tbody>-->
-<!--        <tr>-->
-<!--          <th scope="row">글 유형</th>-->
-<!--&lt;!&ndash;          <td th:text="${post.noticeYn == false ? '일반' : '공지'}"></td>&ndash;&gt;-->
-
-<!--          <th scope="row">등록일</th>-->
-<!--          <td th:text="${#temporals.format( post.createdDate, 'yyyy-MM-dd HH:mm' )}"></td>-->
-<!--        </tr>-->
-<!--        <tr>-->
-<!--          <th scope="row">제목</th>-->
-<!--          <td>[[ ${post.title} ]]</td>-->
-
-<!--          <th scope="row">조회</th>-->
-<!--          <td colspan="3">[[ ${post.viewCnt} ]]</td>-->
-<!--        </tr>-->
-<!--        <tr>-->
-<!--          <th scope="row">이름</th>-->
-<!--          <td colspan="3">[[ ${post.writer} ]]</td>-->
-<!--        </tr>-->
-<!--        <tr>-->
-<!--          <th scope="row">내용</th>-->
-<!--          <td colspan="3">[[ ${post.content} ]]</td>-->
-<!--        </tr>-->
-<!--        </tbody>-->
-<!--      </table>-->
-<!--      <p class="btn_set">-->
-<!--        <a th:href="@{/posts/write.do( id=${post.id} )}" class="btns btn_bdr4 btn_mid">수정</a>-->
-<!--        <button type="button" onclick="deletePost();" class="btns btn_bdr1 btn_mid">삭제</button>-->
-<!--        <a th:href="@{/post/list.do}" class="btns btn_bdr3 btn_mid">뒤로</a>-->
-<!--      </p>-->
-<!--    </section>-->
-<!--  </div> &lt;!&ndash;/* .content */&ndash;&gt;-->
-<!--</th:block>-->
 
 <!--<th:block layout:fragment="script">-->
 <!--  <script th:inline="javascript">-->
