@@ -27,10 +27,9 @@ public class CommentController {
         JsonObject jsonObj = new JsonObject();
 
         try {
-            if (idx != null) { //idx가 null이 아니라는 것은 댓글번호, PK가 포함되어 있다는 의미, PK가 포함되어 있다는 것은 이미 생성된 댓글임을 의미한다
-                params.setIdx(idx);
-            }
-
+//            if (idx != null) { //idx가 null이 아니라는 것은 댓글번호, PK가 포함되어 있다는 의미, PK가 포함되어 있다는 것은 이미 생성된 댓글임을 의미한다
+//                params.setIdx(idx);
+//            }
             Object ob1 = session.getAttribute("NAME");
             String mySessionName = (String)ob1;
             params.setWriter(mySessionName);
@@ -165,20 +164,41 @@ public class CommentController {
     }
 
 
+//    @DeleteMapping(value = "/comments/{idx}")
+//    public JsonObject deleteComment(@PathVariable("idx") final Long idx) {
+//
+//        JsonObject jsonObj = new JsonObject();
+//
+//        try {
+//            boolean isDeleted = commentService.deleteComment(idx);
+//            jsonObj.addProperty("result", isDeleted);
+//
+//        } catch (DataAccessException e) {
+//            jsonObj.addProperty("message", "데이터베이스 처리 과정에 문제가 발생하였습니다.");
+//
+//        } catch (Exception e) {
+//            jsonObj.addProperty("message", "시스템에 문제가 발생하였습니다.");
+//        }
+//
+//        return jsonObj;
+//    }
+
     @DeleteMapping(value = "/comments/{idx}")
     public JsonObject deleteComment(@PathVariable("idx") final Long idx) {
 
         JsonObject jsonObj = new JsonObject();
 
-        try {
+        CommentDTO deleteComment = commentService.selectComment(idx);
+        int depth = deleteComment.getCDepth();
+
+        if (depth == 0) {
+            if (commentService.deleteCheck(idx) == false) {
+                boolean isDeleted = commentService.deleteComment(idx);
+                jsonObj.addProperty("result", isDeleted);
+            }
+        } else if (depth == 1) {
             boolean isDeleted = commentService.deleteComment(idx);
             jsonObj.addProperty("result", isDeleted);
-
-        } catch (DataAccessException e) {
-            jsonObj.addProperty("message", "데이터베이스 처리 과정에 문제가 발생하였습니다.");
-
-        } catch (Exception e) {
-            jsonObj.addProperty("message", "시스템에 문제가 발생하였습니다.");
         }
 
         return jsonObj;

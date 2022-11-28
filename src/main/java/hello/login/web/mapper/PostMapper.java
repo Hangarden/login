@@ -4,6 +4,7 @@ package hello.login.web.mapper;
 import hello.login.web.model.SearchDto;
 import hello.login.web.model.PostRequest;
 import hello.login.web.model.PostResponse;
+import hello.login.web.model.ViewDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -52,4 +53,9 @@ public interface PostMapper {
 
     int updateCnt(Long id);
 
+    void saveView(ViewDTO viewDTO);
+
+    int getCount(Long id);
+
+    void updateViewCount(PostResponse params);
 }

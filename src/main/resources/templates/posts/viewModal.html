@@ -183,7 +183,6 @@
 
       let uri = '/comments';
       const params = {"boardIdx": boardIdx, "content": content.value };
-      // var params = {"boardIdx": boardIdx, "content": content.value, "writer": "관리자"};
       $.ajax({
         url: uri,
         type: "POST",
@@ -311,15 +310,16 @@
 									<span class="desc">${comment.content}</span>
 									`;
             if (comment.memberKey == memberCheck) {
-              commentsHtml += `
-									<button type="button" onclick="openModal(${comment.idx}, ${comment.memberKey}, '${comment.writer}', '${comment.content}' )" class="btn btn-xs btn-circle">
+              commentsHtml += `     <div>
+									<button type="button" style='cursor: pointer; color: blue' onclick="openModal(${comment.idx}, ${comment.memberKey}, '${comment.writer}', '${comment.content}' )" class="btn btn-xs btn-circle">
 									<i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
 									</button>
+									</div>
 								`;
             } else {
             }
             commentsHtml += "       <span style='cursor: pointer; color: blue' class='reCommentBtn' id='reCommentBtn_" + comment.idx + "'>답글 달기 </span>";
-            commentsHtml += `                        <span style='display:none; cursor: pointer; color: blue' class='reCommentCloseBtn' id='reCommentCloseBtn_"+ data.list[i].id +"'>답글 닫기 </span>
+            commentsHtml += `       <span style='display:none; cursor: pointer; color: blue' class='reCommentCloseBtn' id='reCommentCloseBtn_"+ data.list[i].id +"'>답글 닫기 </span>
 						            <div class='mx-4 reCommentDiv' id='reCommentDiv_" + data.list[i].id + "'></div>
 									<span class="time">${moment(comment.insertTime).format('YYYY-MM-DD HH:mm:ss')}</span>
 								</li>
@@ -348,16 +348,49 @@
           if (response != null) {
             $(response.commentList1).each(function (idx, comment1) { //선택자의 개체, IDX는 말그대로 인덱스
               const memberCheck = [[${memberCheck}]];
-              alert(memberCheck);
+
+              if (comment1.memberKey == memberCheck) {
               commentsHtml += "<li>";
               // commentsHtml += "<hr>";
               commentsHtml += "<input type='hidden' id='commentId_" + comment1.idx + "' value='" + comment1.idx + "'>"
               commentsHtml += "<span><b id='commentWriter_" + comment1.idx + "'>" + comment1.writer + "</b></span> ";
               // commentsHtml += "<span style='float:right;' align='right' id='commentDate_" + comment1.idx + "'> " + " </span>";
               commentsHtml += "<span class='desc' style='display: flex;' id='commentText_" + comment1.idx + "' >" + comment1.content + "</span>";
+              commentsHtml += ` <div>
+									<button type="button" onclick="openModal(${comment1.idx}, ${comment1.memberKey}, '${comment1.writer}', '${comment1.content}' )" class="btn btn-xs btn-circle">
+									<i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+									</button>
+								`;
+                commentsHtml += "       <span style='cursor: pointer; color: blue' class='reCommentBtn' id='reCommentBtn_" + comment1.idx + "'>답글 달기 </span>";
+                commentsHtml += `       <span style='display:none; cursor: pointer; color: blue' class='reCommentCloseBtn' id='reCommentCloseBtn_"+ data.list[i].id +"'>답글 닫기 </span>
+						            <div class='mx-4 reCommentDiv' id='reCommentDiv_" + data.list[i].id + "'></div>
+									<span class="time">${moment(comment1.insertTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+								</li>`
+
+              // if (comment1.memberKey == memberCheck) {
+              //   html += "<span style='cursor: pointer; color: blue' class='commentMod' data-toggle='modal' data-target='#modifyModal' >수정 </span>";
+              //   html += "<span style='cursor: pointer; color: blue' class='commentDel'>삭제</span>";
+              // }
               // commentsHtml += "<hr>";
-              commentsHtml += "</li>";
-            });
+            }else {
+                commentsHtml += "<li>";
+                // commentsHtml += "<hr>";
+                commentsHtml += "<input type='hidden' id='commentId_" + comment1.idx + "' value='" + comment1.idx + "'>"
+                commentsHtml += "<span><b id='commentWriter_" + comment1.idx + "'>" + comment1.writer + "</b></span> ";
+                // commentsHtml += "<span style='float:right;' align='right' id='commentDate_" + comment1.idx + "'> " + " </span>";
+                commentsHtml += "<span class='desc' style='display: flex;' id='commentText_" + comment1.idx + "' >" + comment1.content + "</span>";
+                commentsHtml += "       <span style='cursor: pointer; color: blue' class='reCommentBtn' id='reCommentBtn_" + comment1.idx + "'>답글 달기 </span>";
+                commentsHtml += `       <span style='display:none; cursor: pointer; color: blue' class='reCommentCloseBtn' id='reCommentCloseBtn_"+ data.list[i].id +"'>답글 닫기 </span>
+						            <div class='mx-4 reCommentDiv' id='reCommentDiv_" + data.list[i].id + "'></div>
+									<span class="time">${moment(comment1.insertTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+								</li>`
+                // if (comment1.memberKey == memberCheck) {
+                //   html += "<span style='cursor: pointer; color: blue' class='commentMod' data-toggle='modal' data-target='#modifyModal' >수정 </span>";
+                //   html += "<span style='cursor: pointer; color: blue' class='commentDel'>삭제</span>";
+                // }
+                // commentsHtml += "<hr>";
+              }
+                    });
             _this.siblings(".reCommentDiv").html(commentsHtml);
           } else {
             commentsHtml += "<div class='mb-2'>";
@@ -371,6 +404,16 @@
 
           _this.siblings(".reCommentDiv").html(commentsHtml);
         }, "json");
+      });
+
+      $(document).on("click", ".reCommentCloseBtn", function () {
+
+        const _this = $(this);
+        //const cid = reComment.find("#commentId").val();
+        _this.siblings('.reCommentDiv').hide();
+        _this.hide();
+        _this.siblings('.reCommentBtn').show();
+
       });
     }
 

@@ -21,7 +21,7 @@
         INSERT INTO tb_comment (
         <include refid="commentColumns" />
         ) VALUES (
-        #{idx}
+          #{idx}
         , #{boardIdx}
         , #{content}
         , #{writer}
@@ -85,7 +85,7 @@
 
     <select id="selectCommentList" parameterType="CommentDTO" resultType="CommentDTO">
         SELECT
-        <include refid="commentColumns" />
+        <include refid="commentColumns"/>
         FROM
         tb_comment
         WHERE

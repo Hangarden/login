@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 
@@ -56,7 +57,7 @@ public class MemberController {
 
 
     @PostMapping("/login")
-    public String login(Member member, HttpSession session, Model model) {
+    public String login(Member member, HttpSession session, Model model,HttpServletRequest request) {
 
         String loginId = member.getLogin_id();
         String password = member.getPassword();
@@ -65,6 +66,8 @@ public class MemberController {
 
         if(checkMember != null && checkMember.getPassword() != null && password.equals(checkMember.getPassword())) {
             //String sessionId = checkMember.getMemberId();
+            String sessionIP = request.getRemoteAddr();
+            session.setAttribute("IP", sessionIP);
             String sessionName = checkMember.getName();
             Integer sessionId = checkMember.getMemberKey();
             session.setAttribute("MEMBER_ID", sessionId);

@@ -51,6 +51,24 @@ public class CommentService {
         return (queryResult == 1) ? true : false;
     }
 
+    public CommentDTO selectComment(Long idx) {
+        int queryResult = 0;
+        CommentDTO comment = commentMapper.selectCommentDetail(idx);
+
+        return comment;
+    }
+
+    public boolean deleteCheck(Long idx) {
+        int queryResult = 0;
+        CommentDTO comment = commentMapper.selectCommentDetail(idx);
+
+        if (comment != null && "N".equals(comment.getDeleteYn())) {
+            queryResult = commentMapper.deleteComment(idx);
+        }
+
+        return (queryResult == 1) ? true : false;
+    }
+
     public List<CommentDTO> getCommentList(CommentDTO params) {
         List<CommentDTO> commentList = Collections.emptyList();
 

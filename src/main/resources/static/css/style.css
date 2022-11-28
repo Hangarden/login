@@ -81,6 +81,7 @@ button {
     outline: none;
 }
 label {
+    /*margin-top: 12px;*/
     font-weight: 500;
     margin-bottom: 10px;
 }
@@ -502,6 +503,9 @@ h4 strong {
 .btn.btn-circle.btn-xs {
     display: inherit;
     width: 32px;
+    position: relative;
+    float: right;
+    bottom: 13px;
 }
 .btn.btn-social {
     width: 38px;

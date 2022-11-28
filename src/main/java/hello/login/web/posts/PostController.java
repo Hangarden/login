@@ -7,10 +7,7 @@ import com.google.gson.JsonObject;
 import hello.login.web.adapter.GsonLocalDateTimeAdapter;
 import hello.login.web.comment.CommentService;
 import hello.login.web.common.MessageDto;
-import hello.login.web.model.CommentDTO;
-import hello.login.web.model.PostRequest;
-import hello.login.web.model.PostResponse;
-import hello.login.web.model.SearchDto;
+import hello.login.web.model.*;
 import hello.login.web.paging.PagingResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -70,8 +67,18 @@ public class PostController {
     // 게시글 상세 페이지
     @GetMapping("/post/view.do")
     public String openPostView(@RequestParam Long id, Model model, HttpSession session) {
+        ViewDTO viewDTO = new ViewDTO();
+        Object viewObj1 = session.getAttribute("IP");
+        String viewIP = (String) viewObj1;
+        viewDTO.setViewIP(viewIP);
+        viewDTO.setBoardNo(id);
+        postService.viewUpdate(viewDTO);
+
         PostResponse post = postService.findPostById(id);
-        post.setViewCnt(postService.updateCnt(id));
+        int viewCount = postService.getCount(id);
+        System.out.println("{} : " + viewCount);
+        post.setViewCnt(viewCount);
+        postService.updateViewCount(post);
         Object ob2 = session.getAttribute("MEMBER_ID");
         Integer mySessionId = (Integer)ob2;
         Object ob1 = session.getAttribute("NAME");
@@ -80,6 +87,7 @@ public class PostController {
         model.addAttribute("memberCheck", mySessionId);
         model.addAttribute("post", post);
         return "posts/viewModal";
+//        Object viewObj1 = session.getAttribute("IP");
     }
 
     // 기존 게시글 수정

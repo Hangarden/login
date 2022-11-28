@@ -28,22 +28,37 @@
             , #{content}
             , #{writer}
             , 0
-            , 0
+            , #{viewCnt}
             , NOW()
             , NULL
             , #{memberKey}
     )
     </insert>
 
+    <!-- 게시글 저장 -->
+    <insert id="saveView" parameterType="ViewDTO" useGeneratedKeys="true" keyProperty="viewId">
+        INSERT INTO view_ip (
+            view_id,
+            board_no,
+            view_ip,
+            visit_date
+        ) VALUES (
+        #{viewId}
+        , #{boardNo}
+        , #{viewIP}
+        , NOW()
+        )
+    </insert>
+
     <!-- 조회수 올리기 -->
-    <update id="updateCnt">
+    <insert id="updateCnt" parameterType="long">
         update
             tb_post
         set
-            view_cnt = view_cnt + 1
+            view_cnt = #{viewCnt}
         where
             id = #{id}
-    </update>
+    </insert>
 
 
             <!-- 게시글 상세정보 조회 -->
@@ -56,6 +71,15 @@
             id = #{value}
     </select>
 
+    <select id="getCount" parameterType="long" resultType="int">
+        SELECT
+            count(*)
+        FROM
+            view_ip
+        WHERE
+            board_no = #{id}
+    </select>
+
 
             <!-- 게시글 수정 -->
     <update id="update" parameterType="PostRequest">
@@ -66,6 +90,15 @@
             , title = #{title}
             , content = #{content}
             , writer = #{writer}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateViewCount" parameterType="PostResponse">
+        UPDATE
+            tb_post
+        SET
+            view_cnt = #{viewCnt}
         WHERE
             id = #{id}
     </update>

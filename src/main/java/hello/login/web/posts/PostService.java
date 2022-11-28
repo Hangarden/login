@@ -4,6 +4,7 @@ import hello.login.web.mapper.PostMapper;
 import hello.login.web.model.PostRequest;
 import hello.login.web.model.PostResponse;
 import hello.login.web.model.SearchDto;
+import hello.login.web.model.ViewDTO;
 import hello.login.web.paging.Pagination;
 import hello.login.web.paging.PagingResponse;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,11 @@ public class PostService {
         postMapper.update(params);
         return params.getId();
     }
+    @Transactional
+    public void updateViewCount(final PostResponse params) {
+        postMapper.updateViewCount(params);
+    }
+
 
     /**
      * 게시글 삭제
@@ -65,6 +71,10 @@ public class PostService {
         return postMapper.updateCnt(id);
     }
 
+    public int getCount(Long id)  {
+        return postMapper.getCount(id);
+    }
+
     /**
      * 게시글 리스트 조회
      * @param params - search conditions
@@ -78,7 +88,11 @@ public class PostService {
         List<PostResponse> list = postMapper.findAll(params); // findAll 쿼리 실행하여 LIMIT 구문 실행
         return new PagingResponse<>(list, pagination); //데이터와 계산된 페이지 정보 전달 하여 객체 리턴하고 로직 종룟
     }
-        //        int count = postMapper.count(params);
+
+    public void viewUpdate(ViewDTO viewDTO) {
+        postMapper.saveView(viewDTO);
+    }
+    //        int count = postMapper.count(params);
 //        if (count < 1) {
 //            return new PagingResponse<>(Collections.emptyList(), null);
 //        }
