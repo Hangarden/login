@@ -240,7 +240,7 @@
             return false;
           }
 
-          printCommentList();
+          // printCommentList();
           content2.value = "";
         },
         error: function(xhr, status, error) {
@@ -285,9 +285,11 @@
         }
       });
     }
+
     /*[- end of function -]*/
     function printCommentList() {
 
+      // _this.siblings('.reCommentDiv').show();
       // const id = [[ ${post.id} ]];
       // const id2 = 2;
       let query = window.location.search;
@@ -357,20 +359,18 @@
               // commentsHtml += "<span style='float:right;' align='right' id='commentDate_" + comment1.idx + "'> " + " </span>";
               commentsHtml += "<span class='desc' style='display: flex;' id='commentText_" + comment1.idx + "' >" + comment1.content + "</span>";
               commentsHtml += ` <div>
-									<button type="button" onclick="openModal(${comment1.idx}, ${comment1.memberKey}, '${comment1.writer}', '${comment1.content}' )" class="btn btn-xs btn-circle">
-									<i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+									<button type="button" style='display: flex; left: 2px; color: blue; ' onclick="openModal(${comment1.idx}, ${comment1.memberKey}, '${comment1.writer}', '${comment1.content}' )" class="btn btn-xs btn-circle">
+									<i style="left: 10px;" class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
 									</button>
 								`;
-                commentsHtml += "       <span style='cursor: pointer; color: blue' class='reCommentBtn' id='reCommentBtn_" + comment1.idx + "'>답글 달기 </span>";
-                commentsHtml += `       <span style='display:none; cursor: pointer; color: blue' class='reCommentCloseBtn' id='reCommentCloseBtn_"+ data.list[i].id +"'>답글 닫기 </span>
-						            <div class='mx-4 reCommentDiv' id='reCommentDiv_" + data.list[i].id + "'></div>
-									<span class="time">${moment(comment1.insertTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+                // commentsHtml += "<span style='cursor: pointer; color: blue' class='reCommentBtn' id='reCommentBtn_" + comment1.idx + "'>답글 달기 </span>";
+                commentsHtml += `<span class="time">${moment(comment1.insertTime).format('YYYY-MM-DD HH:mm:ss')}</span>
 								</li>`
 
               // if (comment1.memberKey == memberCheck) {
               //   html += "<span style='cursor: pointer; color: blue' class='commentMod' data-toggle='modal' data-target='#modifyModal' >수정 </span>";
               //   html += "<span style='cursor: pointer; color: blue' class='commentDel'>삭제</span>";
-              // }
+              // }cursor: pointer; color: blue
               // commentsHtml += "<hr>";
             }else {
                 commentsHtml += "<li>";
@@ -378,11 +378,9 @@
                 commentsHtml += "<input type='hidden' id='commentId_" + comment1.idx + "' value='" + comment1.idx + "'>"
                 commentsHtml += "<span><b id='commentWriter_" + comment1.idx + "'>" + comment1.writer + "</b></span> ";
                 // commentsHtml += "<span style='float:right;' align='right' id='commentDate_" + comment1.idx + "'> " + " </span>";
-                commentsHtml += "<span class='desc' style='display: flex;' id='commentText_" + comment1.idx + "' >" + comment1.content + "</span>";
-                commentsHtml += "       <span style='cursor: pointer; color: blue' class='reCommentBtn' id='reCommentBtn_" + comment1.idx + "'>답글 달기 </span>";
-                commentsHtml += `       <span style='display:none; cursor: pointer; color: blue' class='reCommentCloseBtn' id='reCommentCloseBtn_"+ data.list[i].id +"'>답글 닫기 </span>
-						            <div class='mx-4 reCommentDiv' id='reCommentDiv_" + data.list[i].id + "'></div>
-									<span class="time">${moment(comment1.insertTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+                commentsHtml += "<span class='desc' style='display: flex; left: 2px; color: blue; position: relative;' id='commentText_" + comment1.idx + "' >" + comment1.content + "</span>";
+
+                commentsHtml += `<span class="time">${moment(comment1.insertTime).format('YYYY-MM-DD HH:mm:ss')}</span>
 								</li>`
                 // if (comment1.memberKey == memberCheck) {
                 //   html += "<span style='cursor: pointer; color: blue' class='commentMod' data-toggle='modal' data-target='#modifyModal' >수정 </span>";
@@ -397,11 +395,11 @@
             commentsHtml += "<h6><strong>등록된 댓글이 없습니다.</strong></h6>";
             commentsHtml += "</div>";
           }
-
+          commentsHtml += "<div class='mb-2' style='margin-top: 20px;'>";
           commentsHtml += "<input style='width: 90%' id='reComment' class='reComment' name='reComment' placeholder='댓글을 입력해 주세요'>";
           // commentsHtml += "<input style='width: 90%' id='reComment_" + cid + "' class='reComment' name='reComment' placeholder='댓글을 입력해 주세요'>";
           commentsHtml += '<button type="button" onclick="insertReComment('+cid+')" class="btn btn-primary mx-2 reCommentSubmit">등록</button>';
-
+          commentsHtml += "</div>";
           _this.siblings(".reCommentDiv").html(commentsHtml);
         }, "json");
       });
@@ -434,7 +432,7 @@
         dataType: "json",
         success: function(response) {
           if (response.result == false) {
-            alert("댓글 삭제에 실패하였습니다.");
+            alert("댓글이 삭제 되었습니다.");
             return false;
           }
 
@@ -442,7 +440,7 @@
           $("#commentModal").modal("hide");
         },
         error: function(xhr, status, error) {
-          alert("에러가 발생하였습니다.");
+          // alert("에러가 발생하였습니다.");
           return false;
         }
       });
