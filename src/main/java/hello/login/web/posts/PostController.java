@@ -69,18 +69,22 @@ public class PostController {
     // 게시글 상세 페이지
     @GetMapping("/post/view.do")
     public String openPostView(@RequestParam Long id, Model model, HttpSession session) {
-        ViewDTO viewDTO = new ViewDTO();
-        Object viewObj1 = session.getAttribute("IP");
+        ViewDTO viewDTO = new ViewDTO(); //DTO 생성
+        Object viewObj1 = session.getAttribute("IP"); //IP viewDTO에 저장
         String viewIP = (String) viewObj1;
-        viewDTO.setViewIP(viewIP);
-        viewDTO.setBoardNo(id);
-        postService.viewUpdate(viewDTO);
+        viewDTO.setViewIP(viewIP); //ip viewDTO에 저장
+        viewDTO.setBoardNo(id); //게시글 번호 viewDTO에 저장
+        PostResponse post = postService.findPostById(id); //id 값을 통해 post데이터 가져옴
+        Integer viewCount = postService.getCount(id); // id를 통해 viewCount가져옴
+        viewDTO.setViewId(viewCount); //조회수 viewDTO에 저장
+        postService.viewUpdate(viewDTO); //첫 게시물일시 조회수 0 전달
 
-        PostResponse post = postService.findPostById(id);
-        int viewCount = postService.getCount(id);
-        System.out.println("{} : " + viewCount);
-        post.setViewCnt(viewCount);
+//        PostResponse post = postService.findPostById(id);
+//        int viewCount = postService.getCount(id);
+//        System.out.println("{} : " + viewCount);
+//        post.setViewCnt(viewCount);
         postService.updateViewCount(post);
+//        postService.insetViewId(viewCount);
         Object ob2 = session.getAttribute("MEMBER_ID");
         Integer mySessionId = (Integer)ob2;
         Object ob1 = session.getAttribute("NAME");

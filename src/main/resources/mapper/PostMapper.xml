@@ -43,7 +43,7 @@
             view_ip,
             visit_date
         ) VALUES (
-                     #{viewId}
+                   #{viewId} + 1
                  , #{boardNo}
                  , #{viewIP}
                  , NOW()
@@ -71,7 +71,7 @@
         id = #{value}
     </select>
 
-    <select id="getCount" parameterType="long" resultType="int">
+    <select id="getCount" parameterType="long" resultType="Integer">
         SELECT
             count(*)
         FROM

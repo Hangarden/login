@@ -71,7 +71,7 @@ public class PostService {
         return postMapper.updateCnt(id);
     }
 
-    public int getCount(Long id)  {
+    public Integer getCount(Long id)  {
         return postMapper.getCount(id);
     }
 
@@ -90,8 +90,12 @@ public class PostService {
     }
 
     public void viewUpdate(ViewDTO viewDTO) {
-        postMapper.saveView(viewDTO);
+        postMapper.saveView(viewDTO); //객체 전달
     }
+
+//    public void insetViewId(int viewCount) {
+//        postMapper.saveViewId(viewCount);
+//    }
     //        int count = postMapper.count(params);
 //        if (count < 1) {
 //            return new PagingResponse<>(Collections.emptyList(), null);

@@ -55,7 +55,9 @@ public interface PostMapper {
 
     void saveView(ViewDTO viewDTO);
 
-    int getCount(Long id);
+    Integer getCount(Long id);
 
     void updateViewCount(PostResponse params);
+
+//    void saveViewId(int viewCount);
 }
